@@ -1,2 +1,2 @@
 # elm-ui-exploration
-Experiment for UI library with nice API in Elm
+Experiment for UI library in Elm with focus on nice API and accessibility.
