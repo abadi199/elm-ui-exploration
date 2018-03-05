@@ -2,10 +2,13 @@ module UI.Validator
     exposing
         ( ValidationResult
         , Validator
+        , isInvalid
+        , validate
         , view
         )
 
 import Html exposing (..)
+import Html.Attributes exposing (..)
 import Result
 import UI.Validator.Internal as Internal
 
@@ -38,8 +41,8 @@ getErrorMessage validationResult =
             Nothing
 
 
-validate : List (Validator value) -> value -> Result (List String) value
-validate validators value =
+validate : value -> List (Validator value) -> Result (List String) value
+validate value validators =
     let
         errors =
             validators
@@ -52,11 +55,21 @@ validate validators value =
         Result.Err errors
 
 
+isInvalid : value -> List (Validator value) -> Bool
+isInvalid value validators =
+    case validate value validators of
+        Result.Err _ ->
+            True
+
+        Result.Ok _ ->
+            False
+
+
 view : List (Validator value) -> value -> Html msg
 view validators value =
-    case validate validators value of
+    case validate value validators of
         Result.Err errors ->
-            div [] [ ul [] (errors |> List.map errorView) ]
+            div [ attribute "aria-role" "alert" ] [ ul [] (errors |> List.map errorView) ]
 
         Result.Ok _ ->
             Html.text ""

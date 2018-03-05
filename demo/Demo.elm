@@ -44,6 +44,7 @@ view model =
         , InputText.view
             [ InputText.label "First Name"
             , InputText.onUpdate FirstNameUpdated
+            , InputText.help "Please enter your first name here."
             , InputText.validators
                 [ StringValidator.required "First name is required."
                 ]

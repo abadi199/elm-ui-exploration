@@ -1,6 +1,7 @@
 module UI.Input.Text.Configs
     exposing
-        ( label
+        ( help
+        , label
         , onUpdate
         , validators
         )
@@ -23,3 +24,8 @@ label labelText =
 validators : List (Validator String) -> Config msg
 validators validatorList =
     \(Internal.Config config) -> Internal.Config { config | validators = Just validatorList }
+
+
+help : String -> Config msg
+help helpText =
+    \(Internal.Config config) -> Internal.Config { config | helpText = Just helpText }
