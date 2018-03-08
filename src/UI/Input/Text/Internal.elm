@@ -1,9 +1,9 @@
 module UI.Input.Text.Internal
     exposing
-        ( Config(..)
+        ( Attribute(..)
         , HelpTextState(..)
         , State(..)
-        , emptyConfig
+        , emptyAttribute
         , initialState
         )
 
@@ -32,22 +32,22 @@ initialState =
         }
 
 
-type Config msg
-    = Config
-        { labelText : Maybe String
-        , onUpdate : Maybe (State -> msg)
+type Attribute msg
+    = Attribute
+        { onUpdate : Maybe (State -> msg)
         , validators : Maybe (List (Validator String))
         , helpText : Maybe String
         , helpButtonText : String
+        , placeholderText : Maybe String
         }
 
 
-emptyConfig : Config msg
-emptyConfig =
-    Config
+emptyAttribute : Attribute msg
+emptyAttribute =
+    Attribute
         { onUpdate = Nothing
-        , labelText = Nothing
         , validators = Nothing
         , helpText = Nothing
         , helpButtonText = "Help"
+        , placeholderText = Nothing
         }

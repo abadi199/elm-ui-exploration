@@ -1,15 +1,18 @@
 module UI.Input.Text
     exposing
-        ( Config
+        ( Attribute
         , State
         , initialState
+        , invisibleLabel
+        , label
         , value
         , view
         )
 
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (onBlur, onFocus, onInput, onMouseOut, onMouseOver)
+import Html
+import Html.Styled exposing (..)
+import Html.Styled.Attributes as Attributes exposing (..)
+import Html.Styled.Events as Events exposing (onBlur, onFocus, onInput, onMouseOut, onMouseOver)
 import Murmur3
 import Result
 import UI.Input.Text.Internal as Internal
@@ -31,11 +34,30 @@ initialState =
 
 
 
+-- LABEL
+
+
+type Label
+    = Label String
+    | InvisibleLabel String
+
+
+label : String -> Label
+label =
+    Label
+
+
+invisibleLabel : String -> Label
+invisibleLabel =
+    InvisibleLabel
+
+
+
 -- CONFIG
 
 
-type alias Config msg =
-    Internal.Config msg -> Internal.Config msg
+type alias Attribute msg =
+    Internal.Attribute msg -> Internal.Attribute msg
 
 
 
@@ -51,49 +73,53 @@ value (Internal.State state) =
 -- VIEW
 
 
-view : List (Config msg) -> State -> Html msg
-view configurations ((Internal.State state) as internalState) =
+view : List (Attribute msg) -> Label -> State -> Html.Html msg
+view configurations label ((Internal.State state) as internalState) =
     let
         domId =
-            generateDomId internalConfig
+            generateDomId internalAttribute
 
-        ((Internal.Config config) as internalConfig) =
+        ((Internal.Attribute config) as internalAttribute) =
             configure configurations
     in
     div []
-        [ labelView domId internalConfig
-        , helpButtonView internalConfig internalState
-        , helpView internalConfig internalState
-        , inputView domId internalConfig internalState
-        , validationView internalConfig internalState
+        [ labelView domId internalAttribute label
+        , helpButtonView internalAttribute internalState
+        , helpView internalAttribute internalState
+        , inputView domId internalAttribute label internalState
+        , validationView internalAttribute internalState
         ]
+        |> Html.Styled.toUnstyled
 
 
-labelView : String -> Internal.Config msg -> Html msg
-labelView domId (Internal.Config config) =
-    config.labelText
-        |> Maybe.map (\labelText -> Html.label [ for domId ] [ Html.text labelText ])
-        |> Maybe.withDefault (Html.text "")
+labelView : String -> Internal.Attribute msg -> Label -> Html msg
+labelView domId (Internal.Attribute config) label =
+    case label of
+        Label labelText ->
+            Html.Styled.label [ for domId ] [ text labelText ]
+
+        InvisibleLabel _ ->
+            text ""
 
 
-helpView : Internal.Config msg -> State -> Html msg
-helpView (Internal.Config config) (Internal.State state) =
+helpView : Internal.Attribute msg -> State -> Html msg
+helpView (Internal.Attribute config) (Internal.State state) =
     let
         helpTextView helpText =
             case state.helpTextState of
                 Internal.HelpTextClosed ->
-                    Html.p [ style [ ( "visibility", "collapse" ) ] ] [ Html.text helpText ]
+                    p [ style [ ( "visibility", "collapse" ) ] ] [ text helpText ]
 
                 Internal.HelpTextOpened ->
-                    Html.p [] [ Html.text helpText ]
+                    p [] [ text helpText ]
     in
     config.helpText
         |> Maybe.map helpTextView
-        |> Maybe.withDefault (Html.text "")
+        |> Maybe.withDefault (text "")
 
 
-helpButtonView : Internal.Config msg -> State -> Html msg
-helpButtonView (Internal.Config config) (Internal.State state) =
+helpButtonView : Internal.Attribute msg -> State -> Html msg
+helpButtonView (Internal.Attribute config) (Internal.State state) =
     let
         eventsHandler onUpdate =
             [ onMouseOver <| onUpdate (Internal.State { state | shouldValidate = False, helpTextState = Internal.HelpTextOpened })
@@ -109,46 +135,75 @@ helpButtonView (Internal.Config config) (Internal.State state) =
     in
     config.helpText
         |> Maybe.map (\_ -> div ([ tabindex 0 ] ++ events) [ text config.helpButtonText ])
-        |> Maybe.withDefault (Html.text "")
+        |> Maybe.withDefault (text "")
 
 
-inputView : String -> Internal.Config msg -> State -> Html msg
-inputView domId (Internal.Config config) (Internal.State state) =
+inputView : String -> Internal.Attribute msg -> Label -> State -> Html msg
+inputView domId (Internal.Attribute config) label (Internal.State state) =
     let
+        noAttribute =
+            id domId
+
+        defaultPlaceholder =
+            case label of
+                InvisibleLabel labelText ->
+                    Attributes.placeholder labelText
+
+                _ ->
+                    noAttribute
+
+        placeholder =
+            config.placeholderText
+                |> Maybe.map (\placeholderText -> Attributes.placeholder placeholderText)
+                |> Maybe.withDefault defaultPlaceholder
+
+        onUpdateEvent =
+            config.onUpdate
+                |> Maybe.map (\onUpdate -> onInput (\value -> onUpdate (Internal.State { state | value = value, shouldValidate = True })))
+                |> Maybe.withDefault noAttribute
+
         ariaInvalid =
             if state.shouldValidate && (config.validators |> Maybe.map (Validator.isInvalid state.value) |> Maybe.withDefault False) then
                 "true"
             else
                 "false"
+
+        ariaLabel =
+            case label of
+                InvisibleLabel labelText ->
+                    Attributes.attribute "aria-label" labelText
+
+                _ ->
+                    noAttribute
     in
     input
-        [ config.onUpdate
-            |> Maybe.map (\onUpdate -> onInput (\value -> onUpdate (Internal.State { state | value = value, shouldValidate = True })))
-            |> Maybe.withDefault (id domId)
+        [ onUpdateEvent
+        , Attributes.value state.value
+        , Attributes.attribute "aria-invalid" ariaInvalid
+        , ariaLabel
+        , placeholder
         , id domId
-        , Html.Attributes.value state.value
-        , Html.Attributes.attribute "aria-invalid" ariaInvalid
         ]
         []
 
 
-validationView : Internal.Config msg -> State -> Html msg
-validationView (Internal.Config config) (Internal.State state) =
+validationView : Internal.Attribute msg -> State -> Html msg
+validationView (Internal.Attribute config) (Internal.State state) =
     if state.shouldValidate then
         config.validators
             |> Maybe.map (\validators -> Validator.view validators state.value)
-            |> Maybe.withDefault (Html.text "")
+            |> Maybe.withDefault (text "")
     else
-        Html.text ""
+        text ""
 
 
-configure : List (Config msg) -> Internal.Config msg
+configure : List (Attribute msg) -> Internal.Attribute msg
 configure configurations =
     configurations
-        |> List.foldl (\f config -> f config) Internal.emptyConfig
+        |> List.foldl (\f config -> f config) Internal.emptyAttribute
 
 
-generateDomId : Internal.Config config -> String
-generateDomId (Internal.Config config) =
+generateDomId : Internal.Attribute config -> String
+generateDomId (Internal.Attribute config) =
     toString <|
         Murmur3.hashString seed (toString config)

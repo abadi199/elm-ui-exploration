@@ -7,8 +7,8 @@ module UI.Validator
         , view
         )
 
-import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html.Styled as Html exposing (..)
+import Html.Styled.Attributes as Attributes exposing (..)
 import Result
 import UI.Validator.Internal as Internal
 

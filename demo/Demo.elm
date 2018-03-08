@@ -2,7 +2,7 @@ module Demo exposing (Model, Msg, init, subscriptions, update, view)
 
 import Html exposing (..)
 import UI.Input.Text as InputText
-import UI.Input.Text.Configs as InputText
+import UI.Input.Text.Attributes as InputText
 import UI.Validator.String as StringValidator
 
 
@@ -42,18 +42,20 @@ view model =
     div []
         [ h1 [] [ text "Form Demo" ]
         , InputText.view
-            [ InputText.label "First Name"
-            , InputText.onUpdate FirstNameUpdated
+            [ InputText.onUpdate FirstNameUpdated
             , InputText.help "Please enter your first name here."
             , InputText.validators
                 [ StringValidator.required "First name is required."
+                , StringValidator.minLength 5 "Must be longer than 5."
                 ]
             ]
+            (InputText.label "First Name")
             model.firstName
         , InputText.view
-            [ InputText.label "Last Name"
-            , InputText.onUpdate LastNameUpdated
+            [ InputText.onUpdate LastNameUpdated
+            , InputText.placeholder "Your last name (e.g.: Smith)"
             ]
+            (InputText.invisibleLabel "Last Name")
             model.lastName
         ]
 
