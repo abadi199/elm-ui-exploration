@@ -1,6 +1,7 @@
 module Demo exposing (Model, Msg, init, subscriptions, update, view)
 
 import Html exposing (..)
+import Theme.Basic
 import UI.Input.Text as InputText
 import UI.Input.Text.Attributes as InputText
 import UI.Validator.String as StringValidator
@@ -41,7 +42,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ h1 [] [ text "Form Demo" ]
-        , InputText.view
+        , InputText.view Theme.Basic.theme
             [ InputText.onUpdate FirstNameUpdated
             , InputText.help "Please enter your first name here."
             , InputText.validators
@@ -51,7 +52,7 @@ view model =
             ]
             (InputText.label "First Name")
             model.firstName
-        , InputText.view
+        , InputText.view Theme.Basic.theme
             [ InputText.onUpdate LastNameUpdated
             , InputText.placeholder "Your last name (e.g.: Smith)"
             ]

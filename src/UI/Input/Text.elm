@@ -15,6 +15,7 @@ import Html.Styled.Attributes as Attributes exposing (..)
 import Html.Styled.Events as Events exposing (onBlur, onFocus, onInput, onMouseOut, onMouseOver)
 import Murmur3
 import Result
+import Theme exposing (Theme)
 import UI.Input.Text.Internal as Internal
 import UI.Validator as Validator
 
@@ -73,8 +74,8 @@ value (Internal.State state) =
 -- VIEW
 
 
-view : List (Attribute msg) -> Label -> State -> Html.Html msg
-view configurations label ((Internal.State state) as internalState) =
+view : Theme -> List (Attribute msg) -> Label -> State -> Html.Html msg
+view theme configurations label ((Internal.State state) as internalState) =
     let
         domId =
             generateDomId internalAttribute
@@ -90,6 +91,10 @@ view configurations label ((Internal.State state) as internalState) =
         , validationView internalAttribute internalState
         ]
         |> Html.Styled.toUnstyled
+
+
+
+-- INTERNAL VIEWS
 
 
 labelView : String -> Internal.Attribute msg -> Label -> Html msg
