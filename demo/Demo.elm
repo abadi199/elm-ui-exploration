@@ -4,6 +4,7 @@ import Html exposing (..)
 import Theme.Basic
 import UI.Input.Text as InputText
 import UI.Input.Text.Attributes as InputText
+import UI.Label as Label
 import UI.Validator.String as StringValidator
 
 
@@ -50,13 +51,13 @@ view model =
                 , StringValidator.minLength 5 "Must be longer than 5."
                 ]
             ]
-            (InputText.label "First Name")
+            (Label.label "First Name")
             model.firstName
         , InputText.view Theme.Basic.theme
             [ InputText.onUpdate LastNameUpdated
             , InputText.placeholder "Your last name (e.g.: Smith)"
             ]
-            (InputText.invisibleLabel "Last Name")
+            (Label.invisible "Last Name")
             model.lastName
         ]
 

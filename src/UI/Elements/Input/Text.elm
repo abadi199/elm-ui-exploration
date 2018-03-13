@@ -3,8 +3,6 @@ module UI.Input.Text
         ( Attribute
         , State
         , initialState
-        , invisibleLabel
-        , label
         , value
         , view
         )
@@ -16,7 +14,12 @@ import Html.Styled.Events as Events exposing (onBlur, onFocus, onInput, onMouseO
 import Murmur3
 import Result
 import Theme exposing (Theme)
+import Theme.Internal as Theme
 import UI.Input.Text.Internal as Internal
+import UI.Input.Text.Theme as InputText
+import UI.Label as Label exposing (Label)
+import UI.Label.Internal as Label
+import UI.Label.Theme as Label
 import UI.Validator as Validator
 
 
@@ -36,24 +39,6 @@ initialState =
 
 
 -- LABEL
-
-
-type Label
-    = Label String
-    | InvisibleLabel String
-
-
-label : String -> Label
-label =
-    Label
-
-
-invisibleLabel : String -> Label
-invisibleLabel =
-    InvisibleLabel
-
-
-
 -- CONFIG
 
 
@@ -75,16 +60,22 @@ value (Internal.State state) =
 
 
 view : Theme -> List (Attribute msg) -> Label -> State -> Html.Html msg
-view theme configurations label ((Internal.State state) as internalState) =
+view (Theme.Theme theme) configurations label ((Internal.State state) as internalState) =
     let
         domId =
             generateDomId internalAttribute
 
         ((Internal.Attribute config) as internalAttribute) =
             configure configurations
+
+        (Internal.Theme inputTextTheme) =
+            theme.inputText |> Maybe.withDefault InputText.emptyTheme
+
+        labelTheme =
+            inputTextTheme.label |> Maybe.withDefault Label.emptyTheme
     in
     div []
-        [ labelView domId internalAttribute label
+        [ Label.view labelTheme domId label |> Html.Styled.fromUnstyled
         , helpButtonView internalAttribute internalState
         , helpView internalAttribute internalState
         , inputView domId internalAttribute label internalState
@@ -95,16 +86,6 @@ view theme configurations label ((Internal.State state) as internalState) =
 
 
 -- INTERNAL VIEWS
-
-
-labelView : String -> Internal.Attribute msg -> Label -> Html msg
-labelView domId (Internal.Attribute config) label =
-    case label of
-        Label labelText ->
-            Html.Styled.label [ for domId ] [ text labelText ]
-
-        InvisibleLabel _ ->
-            text ""
 
 
 helpView : Internal.Attribute msg -> State -> Html msg
@@ -151,7 +132,7 @@ inputView domId (Internal.Attribute config) label (Internal.State state) =
 
         defaultPlaceholder =
             case label of
-                InvisibleLabel labelText ->
+                Label.InvisibleLabel labelText ->
                     Attributes.placeholder labelText
 
                 _ ->
@@ -175,7 +156,7 @@ inputView domId (Internal.Attribute config) label (Internal.State state) =
 
         ariaLabel =
             case label of
-                InvisibleLabel labelText ->
+                Label.InvisibleLabel labelText ->
                     Attributes.attribute "aria-label" labelText
 
                 _ ->

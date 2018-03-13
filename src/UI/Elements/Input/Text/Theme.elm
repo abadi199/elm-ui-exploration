@@ -7,16 +7,12 @@ module UI.Input.Text.Theme
         )
 
 import Theme.Helpers as Theme
+import UI.Input.Text.Internal as Internal
 import UI.Label.Theme as Label
 
 
-type Theme
-    = Theme { label : Maybe Label.Theme }
-
-
-emptyTheme : Theme
-emptyTheme =
-    Theme { label = Nothing }
+type alias Theme =
+    Internal.Theme
 
 
 type alias Style =
@@ -29,4 +25,9 @@ type alias Style =
 
 label : List Label.Style -> Style
 label labelStyles =
-    \(Theme theme) -> Theme { theme | label = Just (Theme.process Label.emptyTheme labelStyles) }
+    \(Internal.Theme theme) -> Internal.Theme { theme | label = Just (Theme.process Label.emptyTheme labelStyles) }
+
+
+emptyTheme : Theme
+emptyTheme =
+    Internal.Theme { label = Nothing }

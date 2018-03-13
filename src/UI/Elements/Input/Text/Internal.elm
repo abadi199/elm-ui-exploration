@@ -3,10 +3,15 @@ module UI.Input.Text.Internal
         ( Attribute(..)
         , HelpTextState(..)
         , State(..)
+        , Theme(..)
         , emptyAttribute
         , initialState
         )
 
+import UI.Icon.Theme as Icon
+import UI.Input.Theme as Input
+import UI.Label.Theme as Label
+import UI.Message.Theme as Message
 import UI.Validator as Validator exposing (Validator)
 
 
@@ -50,4 +55,15 @@ emptyAttribute =
         , helpText = Nothing
         , helpButtonText = "Help"
         , placeholderText = Nothing
+        }
+
+
+type Theme
+    = Theme
+        { label : Maybe Label.Theme
+        , input : Maybe Input.Theme
+        , helpIcon : Maybe Icon.Theme
+        , errorIcon : Maybe Icon.Theme
+        , helpMessage : Maybe Message.Theme
+        , errorMessage : Maybe Message.Theme
         }
