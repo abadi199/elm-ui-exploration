@@ -1,4 +1,4 @@
-module UI.Input.Text.Internal
+module UI.Elements.Input.Text.Internal
     exposing
         ( Attribute(..)
         , HelpTextState(..)
@@ -8,10 +8,10 @@ module UI.Input.Text.Internal
         , initialState
         )
 
-import UI.Icon.Theme as Icon
-import UI.Input.Theme as Input
-import UI.Label.Theme as Label
-import UI.Message.Theme as Message
+import UI.Parts.Icon.Theme as Icon
+import UI.Parts.Input.Theme as Input
+import UI.Parts.Label.Theme as Label
+import UI.Parts.Message.Theme as Message
 import UI.Validator as Validator exposing (Validator)
 
 

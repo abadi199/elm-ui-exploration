@@ -1,33 +1,39 @@
 module Theme.Font
     exposing
         ( Style
+        , Theme
         , families
         , size
         , weight
         )
 
 import Css
+import Theme.Internal as Internal
+
+
+type alias Theme =
+    Internal.FontTheme
 
 
 type alias Style =
-    {}
+    Theme -> Theme
 
 
 batch : List Style -> Style
-batch =
-    Debug.crash "Font.batch"
+batch styles =
+    \(Internal.FontTheme theme) -> Internal.FontTheme theme
 
 
 families : List String -> Style
-families =
-    Debug.crash "Font.families"
+families fontFamilies =
+    \(Internal.FontTheme theme) -> Internal.FontTheme theme
 
 
 size : Css.FontSize a -> Style
-size =
-    Debug.crash "Font.size"
+size fontSize =
+    \(Internal.FontTheme theme) -> Internal.FontTheme theme
 
 
 weight : Css.FontWeight a -> Style
-weight =
-    Debug.crash "Font.weight"
+weight fontWeight =
+    \(Internal.FontTheme theme) -> Internal.FontTheme theme

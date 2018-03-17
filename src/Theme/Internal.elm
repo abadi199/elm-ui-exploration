@@ -1,7 +1,21 @@
-module Theme.Internal exposing (Theme(..))
+module Theme.Internal
+    exposing
+        ( FontTheme(..)
+        , SpacingTheme(..)
+        , Theme(..)
+        )
 
-import UI.Input.Text.Theme as InputText
+import Css
+import UI.Elements.Input.Text.Theme as InputText
 
 
 type Theme
     = Theme { inputText : Maybe InputText.Theme }
+
+
+type FontTheme
+    = FontTheme {}
+
+
+type SpacingTheme
+    = SpacingTheme {}

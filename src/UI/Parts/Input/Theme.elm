@@ -1,15 +1,21 @@
 module UI.Parts.Input.Theme
     exposing
-        ( Styles
-        , Them
+        ( Style
+        , Theme
+        , emptyTheme
         )
 
-import UI.Parts.Input.Internal as Internal
+import UI.Parts.Internal as Internal
 
 
 type alias Theme =
-    Internal.Theme
+    Internal.InputTheme
 
 
 type alias Style =
     Theme -> Theme
+
+
+emptyTheme : Theme
+emptyTheme =
+    Internal.InputTheme {}

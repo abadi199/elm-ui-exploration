@@ -1,4 +1,4 @@
-module UI.Parts.Icon.Theme
+module UI.Parts.Message.Theme
     exposing
         ( Style
         , Theme
@@ -9,12 +9,12 @@ import UI.Parts.Internal as Internal
 
 
 type alias Theme =
-    Internal.IconTheme
+    Internal.MessageTheme
 
 
 emptyTheme : Theme
 emptyTheme =
-    Internal.IconTheme {}
+    Internal.MessageTheme {}
 
 
 type alias Style =

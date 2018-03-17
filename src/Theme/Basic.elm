@@ -4,8 +4,8 @@ import Css exposing (rgba)
 import Theme exposing (Theme)
 import Theme.Color as Color
 import Theme.Font as Font
-import UI.Input.Text.Theme as InputText
-import UI.Label.Theme as Label
+import UI.Elements.Input.Text.Theme as InputText
+import UI.Parts.Label.Theme as Label
 
 
 theme : Theme
@@ -18,11 +18,6 @@ inputTextTheme : Theme.Style
 inputTextTheme =
     Theme.inputText
         [ InputText.label [ labelStyle ]
-        , InputText.input []
-        , InputText.helpIcon []
-        , InputText.errorIcon []
-        , InputText.helpMessage []
-        , InputText.errorMessage []
         ]
 
 
@@ -30,31 +25,34 @@ labelStyle : Label.Style
 labelStyle =
     Label.batch
         [ Label.color [ labelColor ]
-        , Label.font [ labelFont ]
-        , Label.spacing [ labelSpacing ]
+
+        --, Label.font [ labelFont ]
         ]
 
 
-labelFont : Font.Theme
-labelFont =
-    Font.theme
-        [ Font.families [ "Helvetica" ]
-        , Font.size (px 15)
-        , Font.weight bold
-        ]
+
+--labelFont : Font.Theme
+--labelFont =
+--    Font.theme
+--        [ Font.families [ "Helvetica" ]
+--        , Font.size (px 15)
+--        , Font.weight bold
+--        ]
 
 
-labelColor : Color.Theme
+labelColor : Color.Style
 labelColor =
-    Color.theme
-        [ Color.foreground (rgba 0 0 0 0.5)
-        , Color.background (rgba 0 0 0 0)
+    Color.batch
+        [ Color.foreground (Color.color (rgba 255 0 0 0.5))
+        , Color.background (Color.color (rgba 0 0 0 0.2))
+        , Color.border (Color.color (rgba 0 255 255 1))
         ]
 
 
-labelSpacing : Spacing.Theme
-labelSpacing =
-    Spacing.theme
-        [ Spacing.padding (px 10) (px 10) (px 10) (px 10)
-        , Spacing.margin zero zero zero zero
-        ]
+
+--labelSpacing : Spacing.Theme
+--labelSpacing =
+--    Spacing.theme
+--        [ Spacing.padding (px 10) (px 10) (px 10) (px 10)
+--        , Spacing.margin zero zero zero zero
+--        ]

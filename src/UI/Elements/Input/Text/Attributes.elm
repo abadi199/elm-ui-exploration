@@ -1,4 +1,4 @@
-module UI.Input.Text.Attributes
+module UI.Elements.Input.Text.Attributes
     exposing
         ( help
         , onUpdate
@@ -6,8 +6,8 @@ module UI.Input.Text.Attributes
         , validators
         )
 
-import UI.Input.Text exposing (Attribute, State)
-import UI.Input.Text.Internal as Internal
+import UI.Elements.Input.Text exposing (Attribute, State)
+import UI.Elements.Input.Text.Internal as Internal
 import UI.Validator as Validator exposing (Validator)
 
 

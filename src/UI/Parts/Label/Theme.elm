@@ -1,19 +1,23 @@
-module UI.Pars.Label.Theme
+module UI.Parts.Label.Theme
     exposing
         ( Style
         , Theme
-        , backgroundColor
+        , batch
         , color
+        , css
         , emptyTheme
-        , fontFamilies
+        , theme
         )
 
-import Css exposing (Color)
-import UI.Parts.Label.Internal as Internal
+import Css
+import Theme.Color as Color
+import Theme.Color.Internal as Color
+import Theme.Helpers as Helpers
+import UI.Parts.Internal as Internal
 
 
 type alias Theme =
-    Internal.Theme
+    Internal.LabelTheme
 
 
 type alias Style =
@@ -24,25 +28,39 @@ type alias Style =
 -- STYLES
 
 
-color : Color -> Style
-color c =
-    \(Internal.Theme theme) -> Internal.Theme { theme | color = Just c }
+batch : List Style -> Style
+batch styles =
+    \theme ->
+        let
+            updatedTheme =
+                Helpers.process theme styles
+        in
+        updatedTheme
 
 
-backgroundColor : Color -> Style
-backgroundColor c =
-    \(Internal.Theme theme) -> Internal.Theme { theme | backgroundColor = Just c }
+theme : List Style -> Theme
+theme styles =
+    emptyTheme
 
 
-fontFamilies : List String -> Style
-fontFamilies value =
-    \(Internal.Theme theme) -> Internal.Theme { theme | fontFamilies = Just value }
+css : Theme -> Css.Style
+css (Internal.LabelTheme theme) =
+    Css.batch
+        [ Color.css theme.color
+        ]
+
+
+color : List Color.Style -> Style
+color colorStyles =
+    let
+        colorTheme =
+            Helpers.process Color.emptyTheme colorStyles
+    in
+    \(Internal.LabelTheme theme) -> Internal.LabelTheme { theme | color = colorTheme }
 
 
 emptyTheme : Theme
 emptyTheme =
-    Internal.Theme
-        { color = Nothing
-        , backgroundColor = Nothing
-        , fontFamilies = Nothing
+    Internal.LabelTheme
+        { color = Color.emptyTheme
         }

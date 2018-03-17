@@ -1,4 +1,4 @@
-module UI.Input.Text
+module UI.Elements.Input.Text
     exposing
         ( Attribute
         , State
@@ -15,11 +15,11 @@ import Murmur3
 import Result
 import Theme exposing (Theme)
 import Theme.Internal as Theme
-import UI.Input.Text.Internal as Internal
-import UI.Input.Text.Theme as InputText
-import UI.Label as Label exposing (Label)
-import UI.Label.Internal as Label
-import UI.Label.Theme as Label
+import UI.Elements.Input.Text.Internal as Internal
+import UI.Elements.Input.Text.Theme as InputText
+import UI.Parts.Internal as PartsInternal
+import UI.Parts.Label as Label exposing (Label)
+import UI.Parts.Label.Theme as Label
 import UI.Validator as Validator
 
 
@@ -132,7 +132,7 @@ inputView domId (Internal.Attribute config) label (Internal.State state) =
 
         defaultPlaceholder =
             case label of
-                Label.InvisibleLabel labelText ->
+                PartsInternal.InvisibleLabel labelText ->
                     Attributes.placeholder labelText
 
                 _ ->
@@ -156,7 +156,7 @@ inputView domId (Internal.Attribute config) label (Internal.State state) =
 
         ariaLabel =
             case label of
-                Label.InvisibleLabel labelText ->
+                PartsInternal.InvisibleLabel labelText ->
                     Attributes.attribute "aria-label" labelText
 
                 _ ->

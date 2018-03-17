@@ -2,9 +2,9 @@ module Demo exposing (Model, Msg, init, subscriptions, update, view)
 
 import Html exposing (..)
 import Theme.Basic
-import UI.Input.Text as InputText
-import UI.Input.Text.Attributes as InputText
-import UI.Label as Label
+import UI.Elements.Input.Text as InputText
+import UI.Elements.Input.Text.Attributes as InputText
+import UI.Parts.Label as Label
 import UI.Validator.String as StringValidator
 
 
@@ -53,12 +53,13 @@ view model =
             ]
             (Label.label "First Name")
             model.firstName
-        , InputText.view Theme.Basic.theme
-            [ InputText.onUpdate LastNameUpdated
-            , InputText.placeholder "Your last name (e.g.: Smith)"
-            ]
-            (Label.invisible "Last Name")
-            model.lastName
+
+        --, InputText.view Theme.Basic.theme
+        --    [ InputText.onUpdate LastNameUpdated
+        --    , InputText.placeholder "Your last name (e.g.: Smith)"
+        --    ]
+        --    (Label.invisible "Last Name")
+        --    model.lastName
         ]
 
 
