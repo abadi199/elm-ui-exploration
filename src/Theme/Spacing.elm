@@ -2,17 +2,19 @@ module Theme.Spacing
     exposing
         ( Style
         , Theme
-        , families
-        , size
-        , weight
+        , batch
+        , css
+        , emptyTheme
+        , padding
         )
 
 import Css
-import Theme.Internal as Internal
+import Theme.Helpers as Helpers exposing (append)
+import Theme.Spacing.Internal as Internal
 
 
 type alias Theme =
-    Internal.SpacingTheme
+    Internal.Theme
 
 
 type alias Style =
@@ -20,20 +22,30 @@ type alias Style =
 
 
 batch : List Style -> Style
-batch =
-    Debug.crash "Font.batch"
+batch styles =
+    \theme ->
+        Helpers.process theme styles
 
 
-families : List String -> Style
-families =
-    Debug.crash "Font.families"
+emptyTheme : Theme
+emptyTheme =
+    Internal.Theme
+        { padding = Nothing }
 
 
-size : Css.FontSize a -> Style
-size =
-    Debug.crash "Font.size"
+padding : Float -> Float -> Float -> Float -> Style
+padding top right bottom left =
+    \(Internal.Theme theme) ->
+        Internal.Theme { theme | padding = Just ( top, right, bottom, left ) }
 
 
-weight : Css.FontWeight a -> Style
-weight =
-    Debug.crash "Font.weight"
+css : Theme -> Css.Style
+css (Internal.Theme theme) =
+    []
+        |> append paddingCss theme.padding
+        |> Css.batch
+
+
+paddingCss : ( Float, Float, Float, Float ) -> Css.Style
+paddingCss ( top, right, bottom, left ) =
+    Css.padding4 (Css.px top) (Css.px right) (Css.px bottom) (Css.px left)

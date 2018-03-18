@@ -1,8 +1,11 @@
 module Theme.Helpers
     exposing
         ( append
+        , normalize
         , process
         )
+
+import Css
 
 
 process : a -> List (a -> a) -> a
@@ -15,3 +18,10 @@ append f maybe list =
     maybe
         |> Maybe.map (\a -> f a :: list)
         |> Maybe.withDefault list
+
+
+normalize : Css.Style
+normalize =
+    Css.batch
+        [ Css.boxSizing Css.borderBox
+        ]

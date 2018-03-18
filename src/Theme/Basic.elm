@@ -4,6 +4,7 @@ import Css exposing (bold, px, rgba)
 import Theme exposing (Theme)
 import Theme.Color as Color
 import Theme.Font as Font
+import Theme.Spacing as Spacing
 import UI.Elements.Input.Text.Theme as InputText
 import UI.Parts.Label.Theme as Label
 
@@ -26,6 +27,7 @@ labelStyle =
     Label.batch
         [ Label.color [ labelColor ]
         , Label.font [ labelFont ]
+        , Label.spacing [ labelSpacing ]
         ]
 
 
@@ -47,10 +49,8 @@ labelColor =
         ]
 
 
-
---labelSpacing : Spacing.Theme
---labelSpacing =
---    Spacing.theme
---        [ Spacing.padding (px 10) (px 10) (px 10) (px 10)
---        , Spacing.margin zero zero zero zero
---        ]
+labelSpacing : Spacing.Style
+labelSpacing =
+    Spacing.batch
+        [ Spacing.padding 10 10 10 10
+        ]

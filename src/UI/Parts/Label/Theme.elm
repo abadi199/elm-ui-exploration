@@ -7,6 +7,7 @@ module UI.Parts.Label.Theme
         , css
         , emptyTheme
         , font
+        , spacing
         , theme
         )
 
@@ -16,6 +17,8 @@ import Theme.Color.Internal as Color
 import Theme.Font as Font
 import Theme.Font.Internal as Font
 import Theme.Helpers as Helpers
+import Theme.Spacing as Spacing
+import Theme.Spacing.Internal as Spacing
 import UI.Parts.Internal as Internal
 
 
@@ -49,8 +52,10 @@ theme styles =
 css : Theme -> Css.Style
 css (Internal.LabelTheme theme) =
     Css.batch
-        [ Color.css theme.color
+        [ Helpers.normalize
+        , Color.css theme.color
         , Font.css theme.font
+        , Spacing.css theme.spacing
         ]
 
 
@@ -72,9 +77,19 @@ font fontStyles =
     \(Internal.LabelTheme theme) -> Internal.LabelTheme { theme | font = fontTheme }
 
 
+spacing : List Spacing.Style -> Style
+spacing spacingStyles =
+    let
+        spacingTheme =
+            Helpers.process Spacing.emptyTheme spacingStyles
+    in
+    \(Internal.LabelTheme theme) -> Internal.LabelTheme { theme | spacing = spacingTheme }
+
+
 emptyTheme : Theme
 emptyTheme =
     Internal.LabelTheme
         { color = Color.emptyTheme
         , font = Font.emptyTheme
+        , spacing = Spacing.emptyTheme
         }
