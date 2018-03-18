@@ -10,6 +10,7 @@ module UI.Parts.Internal
 
 import Css
 import Theme.Color as Color
+import Theme.Font as Font
 
 
 type InputTheme
@@ -23,6 +24,7 @@ type MessageTheme
 type LabelTheme
     = LabelTheme
         { color : Color.Theme
+        , font : Font.Theme
         }
 
 

@@ -26,17 +26,8 @@ type alias Style =
 
 batch : List Style -> Style
 batch styles =
-    let
-        (Internal.Theme newTheme) =
-            Helpers.process emptyTheme styles
-    in
-    \(Internal.Theme theme) ->
-        Internal.Theme
-            { theme
-                | foreground = newTheme.foreground
-                , background = newTheme.background
-                , border = newTheme.border
-            }
+    \theme ->
+        Helpers.process theme styles
 
 
 emptyTheme : Theme

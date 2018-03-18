@@ -1,6 +1,6 @@
 module Theme.Basic exposing (theme)
 
-import Css exposing (rgba)
+import Css exposing (bold, px, rgba)
 import Theme exposing (Theme)
 import Theme.Color as Color
 import Theme.Font as Font
@@ -25,19 +25,17 @@ labelStyle : Label.Style
 labelStyle =
     Label.batch
         [ Label.color [ labelColor ]
-
-        --, Label.font [ labelFont ]
+        , Label.font [ labelFont ]
         ]
 
 
-
---labelFont : Font.Theme
---labelFont =
---    Font.theme
---        [ Font.families [ "Helvetica" ]
---        , Font.size (px 15)
---        , Font.weight bold
---        ]
+labelFont : Font.Style
+labelFont =
+    Font.batch
+        [ Font.families [ "Sans serif" ]
+        , Font.size 25
+        , Font.weight 100
+        ]
 
 
 labelColor : Color.Style

@@ -6,12 +6,15 @@ module UI.Parts.Label.Theme
         , color
         , css
         , emptyTheme
+        , font
         , theme
         )
 
 import Css
 import Theme.Color as Color
 import Theme.Color.Internal as Color
+import Theme.Font as Font
+import Theme.Font.Internal as Font
 import Theme.Helpers as Helpers
 import UI.Parts.Internal as Internal
 
@@ -47,6 +50,7 @@ css : Theme -> Css.Style
 css (Internal.LabelTheme theme) =
     Css.batch
         [ Color.css theme.color
+        , Font.css theme.font
         ]
 
 
@@ -59,8 +63,18 @@ color colorStyles =
     \(Internal.LabelTheme theme) -> Internal.LabelTheme { theme | color = colorTheme }
 
 
+font : List Font.Style -> Style
+font fontStyles =
+    let
+        fontTheme =
+            Helpers.process Font.emptyTheme fontStyles
+    in
+    \(Internal.LabelTheme theme) -> Internal.LabelTheme { theme | font = fontTheme }
+
+
 emptyTheme : Theme
 emptyTheme =
     Internal.LabelTheme
         { color = Color.emptyTheme
+        , font = Font.emptyTheme
         }

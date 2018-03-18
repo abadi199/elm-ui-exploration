@@ -1,7 +1,6 @@
 module Theme.Internal
     exposing
-        ( FontTheme(..)
-        , SpacingTheme(..)
+        ( SpacingTheme(..)
         , Theme(..)
         )
 
@@ -11,10 +10,6 @@ import UI.Elements.Input.Text.Theme as InputText
 
 type Theme
     = Theme { inputText : Maybe InputText.Theme }
-
-
-type FontTheme
-    = FontTheme {}
 
 
 type SpacingTheme
