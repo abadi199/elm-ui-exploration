@@ -3,10 +3,19 @@ module Theme.Font
         ( Style
         , Theme
         , batch
+        , bold
         , css
         , emptyTheme
+        , extraBold
+        , extraLight
         , families
+        , heavy
+        , light
+        , medium
+        , normal
+        , semiBold
         , size
+        , thin
         , weight
         )
 
@@ -21,6 +30,10 @@ type alias Theme =
 
 type alias Style =
     Theme -> Theme
+
+
+type alias Weight =
+    Internal.Weight
 
 
 batch : List Style -> Style
@@ -48,7 +61,7 @@ size fontSize =
     \(Internal.Theme theme) -> Internal.Theme { theme | size = Just fontSize }
 
 
-weight : Int -> Style
+weight : Weight -> Style
 weight fontWeight =
     \(Internal.Theme theme) -> Internal.Theme { theme | weight = Just fontWeight }
 
@@ -72,6 +85,55 @@ sizeCss fontSize =
     Css.fontSize (Css.px fontSize)
 
 
-weightCss : Int -> Css.Style
-weightCss fontWeight =
+weightCss : Weight -> Css.Style
+weightCss (Internal.Weight fontWeight) =
     Css.fontWeight (Css.int fontWeight)
+
+
+
+-- WEIGHT
+
+
+thin : Weight
+thin =
+    Internal.Weight 100
+
+
+extraLight : Weight
+extraLight =
+    Internal.Weight 200
+
+
+light : Weight
+light =
+    Internal.Weight 300
+
+
+normal : Weight
+normal =
+    Internal.Weight 400
+
+
+medium : Weight
+medium =
+    Internal.Weight 500
+
+
+semiBold : Weight
+semiBold =
+    Internal.Weight 600
+
+
+bold : Weight
+bold =
+    Internal.Weight 700
+
+
+extraBold : Weight
+extraBold =
+    Internal.Weight 800
+
+
+heavy : Weight
+heavy =
+    Internal.Weight 900

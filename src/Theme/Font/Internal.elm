@@ -1,4 +1,8 @@
-module Theme.Font.Internal exposing (Theme(..))
+module Theme.Font.Internal
+    exposing
+        ( Theme(..)
+        , Weight(..)
+        )
 
 import Css
 
@@ -7,5 +11,9 @@ type Theme
     = Theme
         { families : Maybe (List String)
         , size : Maybe Float
-        , weight : Maybe Int
+        , weight : Maybe Weight
         }
+
+
+type Weight
+    = Weight Int

@@ -33,8 +33,8 @@ labelFont : Font.Style
 labelFont =
     Font.batch
         [ Font.families [ "Sans serif" ]
-        , Font.size 25
-        , Font.weight 100
+        , Font.size 18
+        , Font.weight Font.normal
         ]
 
 
