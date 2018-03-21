@@ -7,7 +7,7 @@ module UI.Elements.Input.Text
         , view
         )
 
-import Html
+import Css
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as Attributes exposing (..)
 import Html.Styled.Events as Events exposing (onBlur, onFocus, onInput, onMouseOut, onMouseOver)
@@ -17,9 +17,14 @@ import Theme exposing (Theme)
 import Theme.Internal as Theme
 import UI.Elements.Input.Text.Internal as Internal
 import UI.Elements.Input.Text.Theme as InputText
+import UI.Parts.FloatingMessage as FloatingMessage
+import UI.Parts.Icon as Icon
+import UI.Parts.Input as Input
+import UI.Parts.Input.Theme as Input
 import UI.Parts.Internal as PartsInternal
 import UI.Parts.Label as Label exposing (Label)
 import UI.Parts.Label.Theme as Label
+import UI.Parts.Message.Theme as Message
 import UI.Validator as Validator
 
 
@@ -59,7 +64,7 @@ value (Internal.State state) =
 -- VIEW
 
 
-view : Theme -> List (Attribute msg) -> Label -> State -> Html.Html msg
+view : Theme -> List (Attribute msg) -> Label -> State -> Html msg
 view (Theme.Theme theme) configurations label ((Internal.State state) as internalState) =
     let
         domId =
@@ -73,31 +78,45 @@ view (Theme.Theme theme) configurations label ((Internal.State state) as interna
 
         labelTheme =
             inputTextTheme.label |> Maybe.withDefault Label.emptyTheme
+
+        inputTheme =
+            inputTextTheme.input |> Maybe.withDefault Input.emptyTheme
+
+        helpMessageTheme =
+            inputTextTheme.helpMessage |> Maybe.withDefault Message.emptyTheme
     in
-    div []
-        [ Label.view labelTheme domId label |> Html.Styled.fromUnstyled
+    div
+        [ css
+            [ Css.position Css.relative
+            , Css.displayFlex
+            , Css.justifyContent Css.spaceBetween
+            , Css.flexWrap Css.wrap
+            , Css.alignItems Css.flexStart
+            , Css.property "align-content" "flex-start"
+            ]
+        ]
+        [ Label.view labelTheme domId label
         , helpButtonView internalAttribute internalState
-        , helpView internalAttribute internalState
-        , inputView domId internalAttribute label internalState
+        , helpView helpMessageTheme internalAttribute internalState
+        , inputView inputTheme domId internalAttribute label internalState
         , validationView internalAttribute internalState
         ]
-        |> Html.Styled.toUnstyled
 
 
 
 -- INTERNAL VIEWS
 
 
-helpView : Internal.Attribute msg -> State -> Html msg
-helpView (Internal.Attribute config) (Internal.State state) =
+helpView : Message.Theme -> Internal.Attribute msg -> State -> Html msg
+helpView theme (Internal.Attribute config) (Internal.State state) =
     let
         helpTextView helpText =
             case state.helpTextState of
                 Internal.HelpTextClosed ->
-                    p [ style [ ( "visibility", "collapse" ) ] ] [ text helpText ]
+                    text ""
 
                 Internal.HelpTextOpened ->
-                    p [] [ text helpText ]
+                    FloatingMessage.view theme helpText
     in
     config.helpText
         |> Maybe.map helpTextView
@@ -120,12 +139,22 @@ helpButtonView (Internal.Attribute config) (Internal.State state) =
                 |> Maybe.withDefault []
     in
     config.helpText
-        |> Maybe.map (\_ -> div ([ tabindex 0 ] ++ events) [ text config.helpButtonText ])
+        |> Maybe.map
+            (\_ ->
+                div
+                    ([ tabindex 0
+                     , css
+                        [ Css.cursor Css.pointer ]
+                     ]
+                        ++ events
+                    )
+                    [ Icon.help ]
+            )
         |> Maybe.withDefault (text "")
 
 
-inputView : String -> Internal.Attribute msg -> Label -> State -> Html msg
-inputView domId (Internal.Attribute config) label (Internal.State state) =
+inputView : Input.Theme -> String -> Internal.Attribute msg -> Label -> State -> Html msg
+inputView inputTheme domId (Internal.Attribute config) label (Internal.State state) =
     let
         noAttribute =
             id domId
@@ -162,15 +191,14 @@ inputView domId (Internal.Attribute config) label (Internal.State state) =
                 _ ->
                     noAttribute
     in
-    input
+    Input.view inputTheme
+        domId
         [ onUpdateEvent
         , Attributes.value state.value
         , Attributes.attribute "aria-invalid" ariaInvalid
         , ariaLabel
         , placeholder
-        , id domId
         ]
-        []
 
 
 validationView : Internal.Attribute msg -> State -> Html msg

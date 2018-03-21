@@ -6,7 +6,6 @@ module UI.Parts.Label
         , view
         )
 
-import Html
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as Attributes exposing (..)
 import UI.Parts.Internal as Internal
@@ -27,7 +26,7 @@ invisible =
     Internal.InvisibleLabel
 
 
-view : Theme -> String -> Label -> Html.Html msg
+view : Theme -> String -> Label -> Html msg
 view ((Internal.LabelTheme theme) as internalTheme) domId label =
     case label of
         Internal.Label labelText ->
@@ -36,8 +35,6 @@ view ((Internal.LabelTheme theme) as internalTheme) domId label =
                 , css [ Theme.css internalTheme ]
                 ]
                 [ text labelText ]
-                |> Html.Styled.toUnstyled
 
         Internal.InvisibleLabel _ ->
             text ""
-                |> Html.Styled.toUnstyled

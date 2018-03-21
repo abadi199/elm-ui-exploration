@@ -1,6 +1,9 @@
 module Demo exposing (Model, Msg, init, subscriptions, update, view)
 
-import Html exposing (..)
+import Css
+import Html
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (..)
 import Theme.Basic
 import UI.Elements.Input.Text as InputText
 import UI.Elements.Input.Text.Attributes as InputText
@@ -39,28 +42,37 @@ update msg model =
             ( { model | lastName = state }, Cmd.none )
 
 
-view : Model -> Html Msg
+view : Model -> Html.Html Msg
 view model =
     div []
         [ h1 [] [ text "Form Demo" ]
-        , InputText.view Theme.Basic.theme
-            [ InputText.onUpdate FirstNameUpdated
-            , InputText.help "Please enter your first name here."
-            , InputText.validators
-                [ StringValidator.required "First name is required."
-                , StringValidator.minLength 5 "Must be longer than 5."
+        , div
+            [ css
+                [ Css.property "display" "grid"
+                , Css.property "grid-template-columns" "repeat(auto-fit,minmax(250px,1fr))"
+                , Css.property "grid-gap" "10px"
                 ]
             ]
-            (Label.label "First Name")
-            model.firstName
-
-        --, InputText.view Theme.Basic.theme
-        --    [ InputText.onUpdate LastNameUpdated
-        --    , InputText.placeholder "Your last name (e.g.: Smith)"
-        --    ]
-        --    (Label.invisible "Last Name")
-        --    model.lastName
+            [ InputText.view Theme.Basic.theme
+                [ InputText.onUpdate FirstNameUpdated
+                , InputText.help "Please enter your first name here."
+                , InputText.validators
+                    [ StringValidator.required "First name is required."
+                    , StringValidator.minLength 5 "Must be longer than 5."
+                    ]
+                ]
+                (Label.label "First Name")
+                model.firstName
+            , InputText.view Theme.Basic.theme
+                [ InputText.onUpdate LastNameUpdated
+                , InputText.help "Please enter your last name here."
+                , InputText.placeholder "Your last name (e.g.: Smith)"
+                ]
+                (Label.label "Last Name")
+                model.lastName
+            ]
         ]
+        |> Html.Styled.toUnstyled
 
 
 subscriptions : Model -> Sub Msg

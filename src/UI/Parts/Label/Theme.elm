@@ -8,7 +8,6 @@ module UI.Parts.Label.Theme
         , emptyTheme
         , font
         , spacing
-        , theme
         )
 
 import Css
@@ -42,11 +41,6 @@ batch styles =
                 Helpers.process theme styles
         in
         updatedTheme
-
-
-theme : List Style -> Theme
-theme styles =
-    emptyTheme
 
 
 css : Theme -> Css.Style

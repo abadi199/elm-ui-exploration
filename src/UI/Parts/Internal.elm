@@ -15,7 +15,11 @@ import Theme.Spacing as Spacing
 
 
 type InputTheme
-    = InputTheme {}
+    = InputTheme
+        { color : Color.Theme
+        , font : Font.Theme
+        , spacing : Spacing.Theme
+        }
 
 
 type MessageTheme
