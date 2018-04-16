@@ -61,11 +61,12 @@ inputStyle : Input.Style
 inputStyle =
     Input.batch
         [ Input.spacing [ inputSpacing ]
+        , Input.color [ Color.background (Color.color (rgba 0 0 0 0.05)) ]
         ]
 
 
 inputSpacing : Spacing.Style
 inputSpacing =
     Spacing.batch
-        [ Spacing.padding 5 0 5 0
+        [ Spacing.padding 10 10 10 10
         ]

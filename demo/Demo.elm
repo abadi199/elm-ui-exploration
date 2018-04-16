@@ -8,6 +8,7 @@ import Theme.Basic
 import UI.Elements.Input.Text as InputText
 import UI.Elements.Input.Text.Attributes as InputText
 import UI.Parts.Label as Label
+import UI.Parts.MultiSelect as MultiSelect
 import UI.Validator.String as StringValidator
 
 
@@ -24,12 +25,14 @@ main =
 type alias Model =
     { firstName : InputText.State
     , lastName : InputText.State
+    , multiSelect : MultiSelect.State
     }
 
 
 type Msg
     = FirstNameUpdated InputText.State
     | LastNameUpdated InputText.State
+    | MultiSelectUpdated MultiSelect.State
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -40,6 +43,9 @@ update msg model =
 
         LastNameUpdated state ->
             ( { model | lastName = state }, Cmd.none )
+
+        MultiSelectUpdated state ->
+            ( { model | multiSelect = state }, Cmd.none )
 
 
 view : Model -> Html.Html Msg
@@ -70,7 +76,11 @@ view model =
                 ]
                 (Label.label "Last Name")
                 model.lastName
+            , MultiSelect.view Theme.Basic.theme
+                [ MultiSelect.onUpdate MultiSelectUpdated ]
+                model.multiSelect
             ]
+        , div [ class "dialog" ] [ text "Are you sure you want to delete this address?", button [] [ text "Yes" ], button [] [ text "No" ] ]
         ]
         |> Html.Styled.toUnstyled
 
@@ -84,6 +94,7 @@ init : ( Model, Cmd Msg )
 init =
     ( { firstName = InputText.initialState
       , lastName = InputText.initialState
+      , multiSelect = MultiSelect.initialState
       }
     , Cmd.none
     )
