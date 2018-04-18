@@ -15,12 +15,13 @@ import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onBlur, onClick, onFocus, onInput)
 import Murmur3
 import Process
+import String
 import Task exposing (Task)
 import Theme exposing (Theme)
 import Theme.Internal as Theme
 import Time
 import UI.Attribute as Attribute
-import UI.Events exposing (onEnter, onMouseDownPreventDefault)
+import UI.Events exposing (onClickPreventDefault, onEnter, onMouseDownPreventDefault)
 import UI.Parts.MultiSelect.Internal as Internal
 
 
@@ -49,7 +50,7 @@ view (Theme.Theme theme) attributes (Internal.State state) =
             Attribute.process Internal.emptyAttribute attributes
 
         onUpdateHandler onUpdate =
-            [ onInput (\value -> onUpdate (Internal.State { state | value = value }) Cmd.none)
+            [ onInput (\value -> onUpdate (Internal.State { state | value = value, focus = Internal.FocusOnInput }) Cmd.none)
             , onFocus (onUpdate (Internal.State { state | focus = Internal.FocusOnInput }) Cmd.none)
             , onClick (onUpdate (Internal.State { state | focus = Internal.FocusOnInput }) Cmd.none)
             , onBlur (onUpdate (Internal.State { state | focus = Internal.FocusOnOutside }) Cmd.none)
@@ -71,7 +72,7 @@ view (Theme.Theme theme) attributes (Internal.State state) =
         , input
             (type_ "text"
                 :: value state.value
-                :: css [ Css.width (pct 100) ]
+                :: css []
                 :: (attribute.onUpdate
                         |> Maybe.map onUpdateHandler
                         |> Maybe.withDefault []
@@ -95,7 +96,7 @@ dropDown (Theme.Theme theme) attribute state =
                 )
                 (attribute.options
                     |> Internal.toList
-                    |> List.filter (\( key, _ ) -> List.all ((/=) key) state.selectedKeys)
+                    |> List.filter (\( key, value ) -> List.all ((/=) key) state.selectedKeys && (String.isEmpty state.value || String.contains (String.toLower state.value) (String.toLower value)))
                     |> List.map (dropDownItem (Theme.Theme theme) attribute state)
                 )
     in
@@ -111,10 +112,10 @@ dropDownItem : Theme -> Internal.AttributeData comparable item msg -> Internal.S
 dropDownItem (Theme.Theme theme) attribute state ( key, item ) =
     let
         updatedState =
-            Internal.State { state | selectedKeys = key :: state.selectedKeys, focus = Internal.FocusOnOutside }
+            Internal.State { state | selectedKeys = key :: state.selectedKeys, focus = Internal.FocusOnOutside, value = "" }
 
         onUpdateHandler onUpdate =
-            [ onClick (onUpdate updatedState Cmd.none) ]
+            [ onClickPreventDefault (onUpdate updatedState Cmd.none) ]
     in
     li
         (css [ Css.width (pct 100), hover [ backgroundColor (rgba 255 0 0 1) ] ]
@@ -133,20 +134,33 @@ selectedItem attribute state value =
             { state | selectedKeys = state.selectedKeys |> List.filter (\item -> item /= value) }
                 |> Internal.State
                 |> (\state -> onUpdate state Cmd.none)
-                |> onClick
+                |> onClickPreventDefault
                 |> List.singleton
     in
-    div
-        [ css
-            [ display inlineBlock
-            , margin (px 2)
-            , padding (px 2)
-            , border3 (px 1) solid (rgba 0 0 0 0.5)
-            ]
-        ]
-        [ text value
-        , button (type_ "button" :: (attribute.onUpdate |> Maybe.map onDeleteHandler |> Maybe.withDefault [])) [ text "X" ]
-        ]
+    case Dict.get value (Internal.toDict attribute.options) of
+        Just item ->
+            div
+                [ css
+                    [ display inlineBlock
+                    , margin (px 2)
+                    , padding (px 2)
+                    , border3 (px 1) solid (rgba 0 0 0 0.5)
+                    ]
+                ]
+                [ text item
+                , span
+                    (css
+                        [ border3 (px 1) solid (rgba 0 0 0 0.5)
+                        , margin2 zero (px 10)
+                        , padding (px 2)
+                        ]
+                        :: (attribute.onUpdate |> Maybe.map onDeleteHandler |> Maybe.withDefault [])
+                    )
+                    [ text "X" ]
+                ]
+
+        Nothing ->
+            text ""
 
 
 

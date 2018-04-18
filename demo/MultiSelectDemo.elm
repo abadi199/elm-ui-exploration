@@ -37,7 +37,7 @@ update msg model =
 
 view : Model -> Html.Html Msg
 view model =
-    div [ css [ Css.maxWidth (Css.px 300) ] ]
+    div [ css [ Css.maxWidth (Css.vw 50) ] ]
         [ h1 [] [ text "Form Demo" ]
         , div
             [ css
@@ -46,11 +46,22 @@ view model =
                 , Css.property "grid-gap" "10px"
                 ]
             ]
-            [ MultiSelect.view Theme.Basic.theme
-                [ MultiSelect.onUpdate MultiSelectUpdated
-                , MultiSelect.options <| Dict.fromList [ ( "1", "One" ), ( "2", "Two" ) ]
+            [ label []
+                [ text "Please select your favorite dinosaurs"
+                , MultiSelect.view Theme.Basic.theme
+                    [ MultiSelect.onUpdate MultiSelectUpdated
+                    , MultiSelect.options <|
+                        Dict.fromList
+                            [ ( "1", "Tyrannosaurus Rex" )
+                            , ( "2", "Triceratop" )
+                            , ( "3", "Iguanodon" )
+                            , ( "4", "Spinosaurus" )
+                            , ( "5", "Parasaurolophus" )
+                            , ( "7", "Velociraptor" )
+                            ]
+                    ]
+                    model.multiSelect
                 ]
-                model.multiSelect
             ]
         ]
         |> Html.Styled.toUnstyled

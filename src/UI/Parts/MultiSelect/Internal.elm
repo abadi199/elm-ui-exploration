@@ -8,6 +8,7 @@ module UI.Parts.MultiSelect.Internal
         , StateData
         , emptyAttribute
         , initialState
+        , toDict
         , toList
         )
 
@@ -31,6 +32,17 @@ type Options comparable item
         , sortBy : item -> comparable
         , displayText : item -> String
         }
+
+
+toDict : Options comparable item -> Dict String String
+toDict options =
+    case options of
+        Options dict ->
+            dict
+
+        CustomOptions { options, sortBy, displayText } ->
+            options
+                |> Dict.map (\key value -> displayText value)
 
 
 toList : Options comparable item -> List ( String, String )

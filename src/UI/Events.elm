@@ -1,6 +1,7 @@
 module UI.Events
     exposing
-        ( onEnter
+        ( onClickPreventDefault
+        , onEnter
         , onMouseDownPreventDefault
         )
 
@@ -26,11 +27,21 @@ onEnter tagger =
 
 
 onMouseDownPreventDefault : msg -> Html.Styled.Attribute msg
-onMouseDownPreventDefault msg =
+onMouseDownPreventDefault =
+    onPreventDefault "mousedown"
+
+
+onClickPreventDefault : msg -> Html.Styled.Attribute msg
+onClickPreventDefault =
+    onPreventDefault "click"
+
+
+onPreventDefault : String -> msg -> Html.Styled.Attribute msg
+onPreventDefault event msg =
     let
         eventOptions =
             { preventDefault = True
             , stopPropagation = True
             }
     in
-    onWithOptions "mousedown" eventOptions (JD.succeed msg)
+    onWithOptions event eventOptions (JD.succeed msg)
