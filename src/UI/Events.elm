@@ -1,21 +1,36 @@
-module UI.Events exposing (onEnter)
+module UI.Events
+    exposing
+        ( onEnter
+        , onMouseDownPreventDefault
+        )
 
 import Html.Styled
-import Html.Styled.Events exposing (keyCode, on)
-import Json.Decode as JE
+import Html.Styled.Events exposing (keyCode, on, onWithOptions)
+import Json.Decode as JD
 
 
 onEnter : msg -> Html.Styled.Attribute msg
 onEnter tagger =
     on "keypress"
         (keyCode
-            |> JE.andThen
+            |> JD.andThen
                 (\keyCode ->
                     case keyCode of
                         13 ->
-                            JE.succeed tagger
+                            JD.succeed tagger
 
                         _ ->
-                            JE.fail ""
+                            JD.fail ""
                 )
         )
+
+
+onMouseDownPreventDefault : msg -> Html.Styled.Attribute msg
+onMouseDownPreventDefault msg =
+    let
+        eventOptions =
+            { preventDefault = True
+            , stopPropagation = True
+            }
+    in
+    onWithOptions "mousedown" eventOptions (JD.succeed msg)

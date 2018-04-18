@@ -1,32 +1,51 @@
 module UI.Parts.MultiSelect.Internal
     exposing
         ( Attribute(..)
+        , AttributeData
+        , Focus(..)
         , Options(..)
         , State(..)
+        , StateData
         , emptyAttribute
         , initialState
+        , toList
         )
 
 import Dict exposing (Dict)
 
 
-type Attribute value comparable msg
-    = Attribute
-        { onUpdate : Maybe (State -> msg)
-        , options : Options value comparable
-        }
+type Attribute comparable item msg
+    = Attribute (AttributeData comparable item msg)
 
 
-type Options value comparable
+type alias AttributeData comparable item msg =
+    { onUpdate : Maybe (State -> Cmd msg -> msg)
+    , options : Options comparable item
+    }
+
+
+type Options comparable item
     = Options (Dict String String)
     | CustomOptions
-        { options : Dict String value
-        , sortBy : value -> comparable
-        , displayText : value -> String
+        { options : Dict String item
+        , sortBy : item -> comparable
+        , displayText : item -> String
         }
 
 
-emptyAttribute : Attribute value comparable msg
+toList : Options comparable item -> List ( String, String )
+toList options =
+    case options of
+        Options dict ->
+            Dict.toList dict
+
+        CustomOptions { options, sortBy, displayText } ->
+            Dict.toList options
+                |> List.sortBy (\( _, value ) -> sortBy value)
+                |> List.map (\( key, value ) -> ( key, displayText value ))
+
+
+emptyAttribute : Attribute comparable item msg
 emptyAttribute =
     Attribute
         { onUpdate = Nothing
@@ -35,15 +54,25 @@ emptyAttribute =
 
 
 type State
-    = State
-        { value : String
-        , selectedValues : List String
-        }
+    = State StateData
+
+
+type alias StateData =
+    { value : String
+    , selectedKeys : List String
+    , focus : Focus
+    }
+
+
+type Focus
+    = FocusOnInput
+    | FocusOnOutside
 
 
 initialState : State
 initialState =
     State
         { value = ""
-        , selectedValues = []
+        , selectedKeys = []
+        , focus = FocusOnOutside
         }
