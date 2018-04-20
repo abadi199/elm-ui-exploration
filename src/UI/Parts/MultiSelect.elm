@@ -21,7 +21,8 @@ import Theme exposing (Theme)
 import Theme.Internal as Theme
 import Time
 import UI.Attribute as Attribute
-import UI.Events exposing (onClickPreventDefault, onEnter, onMouseDownPreventDefault)
+import UI.Events exposing (onClickPreventDefault, onKeyDown, onMouseDownPreventDefault)
+import UI.KeyCode as KeyCode
 import UI.Parts.MultiSelect.Internal as Internal
 
 
@@ -54,6 +55,7 @@ view (Theme.Theme theme) attributes (Internal.State state) =
             , onFocus (onUpdate (Internal.State { state | focus = Internal.FocusOnInput }) Cmd.none)
             , onClick (onUpdate (Internal.State { state | focus = Internal.FocusOnInput }) Cmd.none)
             , onBlur (onUpdate (Internal.State { state | focus = Internal.FocusOnOutside }) Cmd.none)
+            , onKeyDown KeyCode.Backspace (onUpdate (Internal.State { state | selectedKeys = state.selectedKeys |> List.tail |> Maybe.withDefault [] }) Cmd.none)
             ]
     in
     div
@@ -156,7 +158,7 @@ selectedItem attribute state value =
                         ]
                         :: (attribute.onUpdate |> Maybe.map onDeleteHandler |> Maybe.withDefault [])
                     )
-                    [ text "X" ]
+                    [ text "x" ]
                 ]
 
         Nothing ->

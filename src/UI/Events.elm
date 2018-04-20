@@ -1,29 +1,14 @@
 module UI.Events
     exposing
         ( onClickPreventDefault
-        , onEnter
+        , onKeyDown
         , onMouseDownPreventDefault
         )
 
 import Html.Styled
 import Html.Styled.Events exposing (keyCode, on, onWithOptions)
 import Json.Decode as JD
-
-
-onEnter : msg -> Html.Styled.Attribute msg
-onEnter tagger =
-    on "keypress"
-        (keyCode
-            |> JD.andThen
-                (\keyCode ->
-                    case keyCode of
-                        13 ->
-                            JD.succeed tagger
-
-                        _ ->
-                            JD.fail ""
-                )
-        )
+import UI.KeyCode as KeyCode exposing (KeyCode)
 
 
 onMouseDownPreventDefault : msg -> Html.Styled.Attribute msg
@@ -45,3 +30,17 @@ onPreventDefault event msg =
             }
     in
     onWithOptions event eventOptions (JD.succeed msg)
+
+
+onKeyDown : KeyCode -> msg -> Html.Styled.Attribute msg
+onKeyDown expectedKeyCode msg =
+    Html.Styled.Events.keyCode
+        |> JD.map KeyCode.fromInt
+        |> JD.andThen
+            (\pressedKeyCode ->
+                if pressedKeyCode == expectedKeyCode then
+                    JD.succeed msg
+                else
+                    JD.fail "ignore"
+            )
+        |> on "keydown"
