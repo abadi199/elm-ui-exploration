@@ -1,0 +1,26 @@
+{
+  "name": "elm-ui-exploration",
+  "version": "1.0.0",
+  "description": "Experiment for UI library in Elm with focus on nice API and accessibility.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abadi199/elm-ui-exploration.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/abadi199/elm-ui-exploration/issues"
+  },
+  "homepage": "https://github.com/abadi199/elm-ui-exploration#readme",
+  "devDependencies": {
+    "elm": "^0.18.0",
+    "elm-test": "^0.18.12"
+  }
+}

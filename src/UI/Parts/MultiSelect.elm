@@ -45,7 +45,7 @@ type alias Attribute value comparable msg =
 
 
 view : Theme -> List (Attribute comparable item msg) -> State -> Html msg
-view (Theme.Theme theme) attributes (Internal.State state) =
+view (Theme.Theme theme) attributes ((Internal.State state) as internalState) =
     let
         (Internal.Attribute attribute) =
             Attribute.process Internal.emptyAttribute attributes
@@ -55,7 +55,11 @@ view (Theme.Theme theme) attributes (Internal.State state) =
             , onFocus (onUpdate (Internal.State { state | focus = Internal.FocusOnInput }) Cmd.none)
             , onClick (onUpdate (Internal.State { state | focus = Internal.FocusOnInput }) Cmd.none)
             , onBlur (onUpdate (Internal.State { state | focus = Internal.FocusOnOutside }) Cmd.none)
-            , onKeyDown KeyCode.Backspace (onUpdate (Internal.State { state | selectedKeys = state.selectedKeys |> List.tail |> Maybe.withDefault [] }) Cmd.none)
+            , onKeyDown
+                [ ( KeyCode.Backspace, onUpdate (Internal.State { state | selectedKeys = state.selectedKeys |> List.tail |> Maybe.withDefault [] }) Cmd.none )
+                , ( KeyCode.DownArrow, onUpdate (Internal.nextFocus attribute.options internalState) Cmd.none )
+                , ( KeyCode.UpArrow, onUpdate (Internal.prevFocus attribute.options internalState) Cmd.none )
+                ]
             ]
     in
     div
@@ -120,7 +124,20 @@ dropDownItem (Theme.Theme theme) attribute state ( key, item ) =
             [ onClickPreventDefault (onUpdate updatedState Cmd.none) ]
     in
     li
-        (css [ Css.width (pct 100), hover [ backgroundColor (rgba 255 0 0 1) ] ]
+        (css
+            [ Css.width (pct 100)
+            , hover
+                [ backgroundColor (rgba 255 0 0 1) ]
+            , case state.focusedKey of
+                Internal.NoKeyFocused ->
+                    backgroundColor transparent
+
+                Internal.KeyFocused focusedKey ->
+                    if key == focusedKey then
+                        backgroundColor (rgba 0 255 0 1)
+                    else
+                        backgroundColor transparent
+            ]
             :: (attribute.onUpdate
                     |> Maybe.map onUpdateHandler
                     |> Maybe.withDefault []

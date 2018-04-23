@@ -5,6 +5,7 @@ module UI.Events
         , onMouseDownPreventDefault
         )
 
+import Dict
 import Html.Styled
 import Html.Styled.Events exposing (keyCode, on, onWithOptions)
 import Json.Decode as JD
@@ -32,15 +33,20 @@ onPreventDefault event msg =
     onWithOptions event eventOptions (JD.succeed msg)
 
 
-onKeyDown : KeyCode -> msg -> Html.Styled.Attribute msg
-onKeyDown expectedKeyCode msg =
+onKeyDown : List ( KeyCode, msg ) -> Html.Styled.Attribute msg
+onKeyDown list =
+    let
+        keyCodeDict =
+            list |> List.map (\( keyCode, msg ) -> ( KeyCode.toInt keyCode, msg )) |> Dict.fromList
+    in
     Html.Styled.Events.keyCode
-        |> JD.map KeyCode.fromInt
         |> JD.andThen
             (\pressedKeyCode ->
-                if pressedKeyCode == expectedKeyCode then
-                    JD.succeed msg
-                else
-                    JD.fail "ignore"
+                case Dict.get pressedKeyCode keyCodeDict of
+                    Just msg ->
+                        JD.succeed msg
+
+                    Nothing ->
+                        JD.fail "ignore"
             )
         |> on "keydown"
