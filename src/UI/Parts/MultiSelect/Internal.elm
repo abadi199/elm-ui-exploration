@@ -7,13 +7,18 @@ module UI.Parts.MultiSelect.Internal
         , Options(..)
         , State(..)
         , StateData
+        , addSelectedKeys
+        , availableOptions
+        , clearFocused
         , emptyAttribute
+        , focus
         , focusedKey
         , initialState
         , nextFocus
         , prevFocus
+        , selectFocused
         , toDict
-        , toList
+        , value
         )
 
 import Dict exposing (Dict)
@@ -49,9 +54,9 @@ toDict options =
                 |> Dict.map (\key value -> displayText value)
 
 
-toList : Options comparable item -> List ( String, String )
-toList options =
-    case options of
+availableOptions : State -> Options comparable item -> List ( String, String )
+availableOptions (State state) options =
+    (case options of
         Options dict ->
             Dict.toList dict
 
@@ -59,6 +64,8 @@ toList options =
             Dict.toList options
                 |> List.sortBy (\( _, value ) -> sortBy value)
                 |> List.map (\( key, value ) -> ( key, displayText value ))
+    )
+        |> List.filter (\( key, value ) -> List.all ((/=) key) state.selectedKeys && (String.isEmpty state.value || String.contains (String.toLower state.value) (String.toLower value)))
 
 
 emptyAttribute : Attribute comparable item msg
@@ -111,14 +118,14 @@ nextFocus options ((State state) as internalState) =
     case state.focusedKey of
         NoKeyFocused ->
             options
-                |> toList
+                |> availableOptions internalState
                 |> List.head
                 |> Maybe.map Tuple.first
                 |> Maybe.map (\key -> State { state | focusedKey = KeyFocused key })
                 |> Maybe.withDefault internalState
 
         KeyFocused currentKey ->
-            case next options currentKey of
+            case next options internalState currentKey of
                 Just nextKey ->
                     State { state | focusedKey = KeyFocused nextKey }
 
@@ -126,35 +133,42 @@ nextFocus options ((State state) as internalState) =
                     internalState
 
 
-next : Options comparable item -> String -> Maybe String
-next options key =
+next : Options comparable item -> State -> String -> Maybe String
+next options state key =
     options
-        |> toList
+        |> availableOptions state
         |> nextHelper key
 
 
 nextHelper : String -> List ( String, a ) -> Maybe String
 nextHelper key list =
-    case list of
-        [] ->
-            Nothing
+    if list |> List.map Tuple.first |> List.member key |> not then
+        List.head list |> Maybe.map Tuple.first
 
-        head :: [] ->
-            Nothing
-
-        head :: next :: [] ->
-            if Tuple.first head == key then
-                Just (Tuple.first next)
-            else
+    else
+        case list of
+            [] ->
                 Nothing
 
-        head :: next :: nextNext :: rest ->
-            if Tuple.first head == key then
-                Just (Tuple.first next)
-            else if Tuple.first next == key then
-                Just (Tuple.first nextNext)
-            else
-                nextHelper key (nextNext :: rest)
+            head :: [] ->
+                Nothing
+
+            head :: next :: [] ->
+                if Tuple.first head == key then
+                    Just (Tuple.first next)
+
+                else
+                    Nothing
+
+            head :: next :: nextNext :: rest ->
+                if Tuple.first head == key then
+                    Just (Tuple.first next)
+
+                else if Tuple.first next == key then
+                    Just (Tuple.first nextNext)
+
+                else
+                    nextHelper key (nextNext :: rest)
 
 
 prevFocus : Options comparable item -> State -> State
@@ -162,7 +176,7 @@ prevFocus options ((State state) as internalState) =
     case state.focusedKey of
         NoKeyFocused ->
             options
-                |> toList
+                |> availableOptions internalState
                 |> List.reverse
                 |> List.head
                 |> Maybe.map Tuple.first
@@ -170,7 +184,7 @@ prevFocus options ((State state) as internalState) =
                 |> Maybe.withDefault internalState
 
         KeyFocused currentKey ->
-            case prev options currentKey of
+            case prev options internalState currentKey of
                 Just prevKey ->
                     State { state | focusedKey = KeyFocused prevKey }
 
@@ -178,9 +192,39 @@ prevFocus options ((State state) as internalState) =
                     internalState
 
 
-prev : Options comparable item -> String -> Maybe String
-prev options key =
+prev : Options comparable item -> State -> String -> Maybe String
+prev options state key =
     options
-        |> toList
+        |> availableOptions state
         |> List.reverse
         |> nextHelper key
+
+
+addSelectedKeys : String -> State -> State
+addSelectedKeys key ((State state) as internalState) =
+    State { state | selectedKeys = key :: state.selectedKeys }
+
+
+selectFocused : State -> State
+selectFocused ((State state) as internalState) =
+    case state.focusedKey of
+        NoKeyFocused ->
+            internalState
+
+        KeyFocused key ->
+            addSelectedKeys key internalState
+
+
+clearFocused : State -> State
+clearFocused ((State state) as internalState) =
+    State { state | focusedKey = NoKeyFocused }
+
+
+value : String -> State -> State
+value v (State state) =
+    State { state | value = v }
+
+
+focus : Focus -> State -> State
+focus f (State state) =
+    State { state | focus = f }

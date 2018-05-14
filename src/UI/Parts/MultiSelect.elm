@@ -59,6 +59,7 @@ view (Theme.Theme theme) attributes ((Internal.State state) as internalState) =
                 [ ( KeyCode.Backspace, onUpdate (Internal.State { state | selectedKeys = state.selectedKeys |> List.tail |> Maybe.withDefault [] }) Cmd.none )
                 , ( KeyCode.DownArrow, onUpdate (Internal.nextFocus attribute.options internalState) Cmd.none )
                 , ( KeyCode.UpArrow, onUpdate (Internal.prevFocus attribute.options internalState) Cmd.none )
+                , ( KeyCode.Enter, onUpdate (internalState |> Internal.selectFocused |> Internal.clearFocused) Cmd.none )
                 ]
             ]
     in
@@ -101,8 +102,7 @@ dropDown (Theme.Theme theme) attribute state =
                     :: (attribute.onUpdate |> Maybe.map onUpdateHandler |> Maybe.withDefault [])
                 )
                 (attribute.options
-                    |> Internal.toList
-                    |> List.filter (\( key, value ) -> List.all ((/=) key) state.selectedKeys && (String.isEmpty state.value || String.contains (String.toLower state.value) (String.toLower value)))
+                    |> Internal.availableOptions (Internal.State state)
                     |> List.map (dropDownItem (Theme.Theme theme) attribute state)
                 )
     in
@@ -118,7 +118,11 @@ dropDownItem : Theme -> Internal.AttributeData comparable item msg -> Internal.S
 dropDownItem (Theme.Theme theme) attribute state ( key, item ) =
     let
         updatedState =
-            Internal.State { state | selectedKeys = key :: state.selectedKeys, focus = Internal.FocusOnOutside, value = "" }
+            state
+                |> Internal.State
+                |> Internal.selectFocused
+                |> Internal.value ""
+                |> Internal.focus Internal.FocusOnOutside
 
         onUpdateHandler onUpdate =
             [ onClickPreventDefault (onUpdate updatedState Cmd.none) ]
@@ -135,6 +139,7 @@ dropDownItem (Theme.Theme theme) attribute state ( key, item ) =
                 Internal.KeyFocused focusedKey ->
                     if key == focusedKey then
                         backgroundColor (rgba 0 255 0 1)
+
                     else
                         backgroundColor transparent
             ]
@@ -143,7 +148,7 @@ dropDownItem (Theme.Theme theme) attribute state ( key, item ) =
                     |> Maybe.withDefault []
                )
         )
-        [ text item ]
+        [ text (key ++ " - " ++ item) ]
 
 
 selectedItem : Internal.AttributeData comparable item msg -> Internal.StateData -> String -> Html msg
