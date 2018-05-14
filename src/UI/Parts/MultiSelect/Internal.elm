@@ -4,15 +4,18 @@ module UI.Parts.MultiSelect.Internal
         , AttributeData
         , Focus(..)
         , FocusedKey(..)
+        , HighlightedKey(..)
         , Options(..)
         , State(..)
         , StateData
         , addSelectedKeys
         , availableOptions
         , clearFocused
+        , clearHighlighted
         , emptyAttribute
         , focus
         , focusedKey
+        , highlight
         , initialState
         , nextFocus
         , prevFocus
@@ -85,6 +88,7 @@ type alias StateData =
     , selectedKeys : List String
     , focus : Focus
     , focusedKey : FocusedKey
+    , highlightedKey : HighlightedKey
     }
 
 
@@ -98,6 +102,11 @@ type FocusedKey
     | KeyFocused String
 
 
+type HighlightedKey
+    = NoKeyHighlighted
+    | KeyHighlighted String
+
+
 initialState : State
 initialState =
     State
@@ -105,6 +114,7 @@ initialState =
         , selectedKeys = []
         , focusedKey = NoKeyFocused
         , focus = FocusOnOutside
+        , highlightedKey = NoKeyHighlighted
         }
 
 
@@ -228,3 +238,13 @@ value v (State state) =
 focus : Focus -> State -> State
 focus f (State state) =
     State { state | focus = f }
+
+
+highlight : String -> State -> State
+highlight key (State state) =
+    State { state | highlightedKey = KeyHighlighted key }
+
+
+clearHighlighted : State -> State
+clearHighlighted (State state) =
+    State { state | highlightedKey = NoKeyHighlighted }

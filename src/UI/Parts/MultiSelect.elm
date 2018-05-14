@@ -117,21 +117,24 @@ dropDown (Theme.Theme theme) attribute state =
 dropDownItem : Theme -> Internal.AttributeData comparable item msg -> Internal.StateData -> ( String, String ) -> Html msg
 dropDownItem (Theme.Theme theme) attribute state ( key, item ) =
     let
-        updatedState =
-            state
-                |> Internal.State
-                |> Internal.addSelectedKeys key
-                |> Internal.value ""
+        internalState =
+            Internal.State state
 
         onUpdateHandler onUpdate =
-            [ onClickPreventDefault (onUpdate updatedState Cmd.none) ]
-    in
-    li
-        (css
-            [ Css.width (pct 100)
-            , hover
-                [ backgroundColor (rgba 255 0 0 1) ]
-            , case state.focusedKey of
+            [ onClickPreventDefault
+                (onUpdate
+                    (internalState
+                        |> Internal.addSelectedKeys key
+                        |> Internal.value ""
+                    )
+                    Cmd.none
+                )
+            , Html.Styled.Events.onMouseEnter (onUpdate (internalState |> Internal.highlight key) Cmd.none)
+            , Html.Styled.Events.onMouseLeave (onUpdate (internalState |> Internal.clearHighlighted) Cmd.none)
+            ]
+
+        focusedBackgroundColor =
+            case state.focusedKey of
                 Internal.NoKeyFocused ->
                     backgroundColor transparent
 
@@ -141,13 +144,27 @@ dropDownItem (Theme.Theme theme) attribute state ( key, item ) =
 
                     else
                         backgroundColor transparent
+    in
+    li
+        (css
+            [ Css.width (pct 100)
+            , case state.highlightedKey of
+                Internal.NoKeyHighlighted ->
+                    focusedBackgroundColor
+
+                Internal.KeyHighlighted highlightedKey ->
+                    if key == highlightedKey then
+                        backgroundColor (rgba 255 0 0 1)
+
+                    else
+                        focusedBackgroundColor
             ]
             :: (attribute.onUpdate
                     |> Maybe.map onUpdateHandler
                     |> Maybe.withDefault []
                )
         )
-        [ text (key ++ " - " ++ item) ]
+        [ text item ]
 
 
 selectedItem : Internal.AttributeData comparable item msg -> Internal.StateData -> String -> Html msg
