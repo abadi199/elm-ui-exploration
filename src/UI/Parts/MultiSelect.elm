@@ -120,9 +120,8 @@ dropDownItem (Theme.Theme theme) attribute state ( key, item ) =
         updatedState =
             state
                 |> Internal.State
-                |> Internal.selectFocused
+                |> Internal.addSelectedKeys key
                 |> Internal.value ""
-                |> Internal.focus Internal.FocusOnOutside
 
         onUpdateHandler onUpdate =
             [ onClickPreventDefault (onUpdate updatedState Cmd.none) ]
