@@ -24,6 +24,7 @@ import UI.Attribute as Attribute
 import UI.Events exposing (onClickPreventDefault, onKeyDown, onMouseDownPreventDefault)
 import UI.KeyCode as KeyCode
 import UI.Parts.MultiSelect.Internal as Internal
+import UI.Parts.MultiSelect.SelectedKeys as SelectedKeys
 
 
 seed : Int
@@ -56,10 +57,12 @@ view (Theme.Theme theme) attributes ((Internal.State state) as internalState) =
             , onClick (onUpdate (Internal.State { state | focus = Internal.FocusOnInput }) Cmd.none)
             , onBlur (onUpdate (Internal.State { state | focus = Internal.FocusOnOutside }) Cmd.none)
             , onKeyDown
-                [ ( KeyCode.Backspace, onUpdate (Internal.State { state | selectedKeys = state.selectedKeys |> List.tail |> Maybe.withDefault [] }) Cmd.none )
-                , ( KeyCode.DownArrow, onUpdate (Internal.nextFocus attribute.options internalState) Cmd.none )
-                , ( KeyCode.UpArrow, onUpdate (Internal.prevFocus attribute.options internalState) Cmd.none )
+                [ ( KeyCode.Backspace, onUpdate (Internal.State { state | selectedKeys = state.selectedKeys |> SelectedKeys.delete }) Cmd.none )
+                , ( KeyCode.DownArrow, onUpdate (internalState |> Internal.focusNext attribute.options) Cmd.none )
+                , ( KeyCode.UpArrow, onUpdate (internalState |> Internal.focusPrev attribute.options) Cmd.none )
                 , ( KeyCode.Enter, onUpdate (internalState |> Internal.selectFocused |> Internal.clearFocused) Cmd.none )
+                , ( KeyCode.LeftArrow, onUpdate (internalState |> Internal.focusPrevSelected) Cmd.none )
+                , ( KeyCode.RightArrow, onUpdate (internalState |> Internal.focusNextSelected) Cmd.none )
                 ]
             ]
     in
@@ -73,7 +76,7 @@ view (Theme.Theme theme) attributes ((Internal.State state) as internalState) =
         ]
         [ div []
             (state.selectedKeys
-                |> List.map (selectedItem attribute state)
+                |> SelectedKeys.map (selectedItem True attribute state) (selectedItem False attribute state)
                 |> List.reverse
             )
         , input
@@ -167,11 +170,11 @@ dropDownItem (Theme.Theme theme) attribute state ( key, item ) =
         [ text item ]
 
 
-selectedItem : Internal.AttributeData comparable item msg -> Internal.StateData -> String -> Html msg
-selectedItem attribute state value =
+selectedItem : Bool -> Internal.AttributeData comparable item msg -> Internal.StateData -> String -> Html msg
+selectedItem isFocused attribute state value =
     let
         onDeleteHandler onUpdate =
-            { state | selectedKeys = state.selectedKeys |> List.filter (\item -> item /= value) }
+            { state | selectedKeys = state.selectedKeys |> SelectedKeys.filter (\item -> item /= value) }
                 |> Internal.State
                 |> (\state -> onUpdate state Cmd.none)
                 |> onClickPreventDefault
@@ -181,11 +184,18 @@ selectedItem attribute state value =
         Just item ->
             div
                 [ css
-                    [ display inlineBlock
-                    , margin (px 2)
-                    , padding (px 2)
-                    , border3 (px 1) solid (rgba 0 0 0 0.5)
-                    ]
+                    ([ display inlineBlock
+                     , margin (px 2)
+                     , padding (px 2)
+                     , border3 (px 1) solid (rgba 0 0 0 0.5)
+                     ]
+                        ++ (if isFocused then
+                                [ backgroundColor (rgba 255 0 0 1) ]
+
+                            else
+                                []
+                           )
+                    )
                 ]
                 [ text item
                 , span

@@ -14,17 +14,20 @@ module UI.Parts.MultiSelect.Internal
         , clearHighlighted
         , emptyAttribute
         , focus
+        , focusNext
+        , focusNextSelected
+        , focusPrev
+        , focusPrevSelected
         , focusedKey
         , highlight
         , initialState
-        , nextFocus
-        , prevFocus
         , selectFocused
         , toDict
         , value
         )
 
 import Dict exposing (Dict)
+import UI.Parts.MultiSelect.SelectedKeys as SelectedKeys exposing (SelectedKeys)
 
 
 type Attribute comparable item msg
@@ -68,7 +71,11 @@ availableOptions (State state) options =
                 |> List.sortBy (\( _, value ) -> sortBy value)
                 |> List.map (\( key, value ) -> ( key, displayText value ))
     )
-        |> List.filter (\( key, value ) -> List.all ((/=) key) state.selectedKeys && (String.isEmpty state.value || String.contains (String.toLower state.value) (String.toLower value)))
+        |> List.filter
+            (\( key, value ) ->
+                SelectedKeys.all ((/=) key) state.selectedKeys
+                    && (String.isEmpty state.value || String.contains (String.toLower state.value) (String.toLower value))
+            )
 
 
 emptyAttribute : Attribute comparable item msg
@@ -85,7 +92,7 @@ type State
 
 type alias StateData =
     { value : String
-    , selectedKeys : List String
+    , selectedKeys : SelectedKeys
     , focus : Focus
     , focusedKey : FocusedKey
     , highlightedKey : HighlightedKey
@@ -111,7 +118,7 @@ initialState : State
 initialState =
     State
         { value = ""
-        , selectedKeys = []
+        , selectedKeys = SelectedKeys.empty
         , focusedKey = NoKeyFocused
         , focus = FocusOnOutside
         , highlightedKey = NoKeyHighlighted
@@ -123,8 +130,8 @@ focusedKey (State state) =
     state.focusedKey
 
 
-nextFocus : Options comparable item -> State -> State
-nextFocus options ((State state) as internalState) =
+focusNext : Options comparable item -> State -> State
+focusNext options ((State state) as internalState) =
     case state.focusedKey of
         NoKeyFocused ->
             options
@@ -181,8 +188,8 @@ nextHelper key list =
                     nextHelper key (nextNext :: rest)
 
 
-prevFocus : Options comparable item -> State -> State
-prevFocus options ((State state) as internalState) =
+focusPrev : Options comparable item -> State -> State
+focusPrev options ((State state) as internalState) =
     case state.focusedKey of
         NoKeyFocused ->
             options
@@ -212,7 +219,7 @@ prev options state key =
 
 addSelectedKeys : String -> State -> State
 addSelectedKeys key ((State state) as internalState) =
-    State { state | selectedKeys = key :: state.selectedKeys }
+    State { state | selectedKeys = SelectedKeys.add key state.selectedKeys }
 
 
 selectFocused : State -> State
@@ -248,3 +255,13 @@ highlight key (State state) =
 clearHighlighted : State -> State
 clearHighlighted (State state) =
     State { state | highlightedKey = NoKeyHighlighted }
+
+
+focusNextSelected : State -> State
+focusNextSelected (State state) =
+    State { state | selectedKeys = SelectedKeys.focusNext state.selectedKeys }
+
+
+focusPrevSelected : State -> State
+focusPrevSelected (State state) =
+    State { state | selectedKeys = SelectedKeys.focusPrev state.selectedKeys }
